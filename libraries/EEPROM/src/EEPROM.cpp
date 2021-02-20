@@ -243,7 +243,7 @@ uint16_t EEPROMClass::convert (bool clear, const char* EEPROMname, const char* n
 
   bool empty;
   empty = true;
-  for (int x=0; x<size; x++) {
+  for (size_t x=0; x<size; x++) {
     if (data[x] != 0xFF) {
       empty = false;
       break;
@@ -377,7 +377,7 @@ size_t EEPROMClass::readString (int address, char* value, size_t maxLen)
     if (_data[address + len] == 0)
       break;
 
-  if (address + len > _size)
+  if ((size_t)address + len > _size)
     return 0;
 
   if (len > maxLen)
@@ -390,7 +390,7 @@ size_t EEPROMClass::readString (int address, char* value, size_t maxLen)
 
 String EEPROMClass::readString (int address)
 {
-  if (address < 0 || address > _size)
+  if (address < 0 || (size_t)address > _size)
     return String();
 
   uint16_t len;
@@ -398,7 +398,7 @@ String EEPROMClass::readString (int address)
     if (_data[address + len] == 0)
       break;
 
-  if (address + len > _size)
+  if ((size_t)address + len > _size)
     return String();
 
   char value[len+1];
@@ -508,7 +508,7 @@ size_t EEPROMClass::writeString (int address, const char* value)
   if (!value)
     return 0;
 
-  if (address < 0 || address > _size)
+  if (address < 0 || (size_t)address > _size)
     return 0;
 
   uint16_t len;
@@ -516,7 +516,7 @@ size_t EEPROMClass::writeString (int address, const char* value)
     if (value[len] == 0)
       break;
 
-  if (address + len > _size)
+  if ((size_t)address + len > _size)
     return 0;
 
   memcpy(_data + address, (const uint8_t*) value, len + 1);
