@@ -310,7 +310,7 @@ bool MDNSResponder::hasTxt(int idx, const char * key) {
         log_e("Result %d not found", idx);
         return false;
     }
-    int i = 0;
+    size_t i = 0;
     while(i < result->txt_count) {
         if (strcmp(result->txt[i].key, key) == 0) return true;
         i++;
@@ -324,7 +324,7 @@ String MDNSResponder::txt(int idx, const char * key) {
         log_e("Result %d not found", idx);
         return "";
     }
-    int i = 0;
+    size_t i = 0;
     while(i < result->txt_count) {
         if (strcmp(result->txt[i].key, key) == 0) return result->txt[i].value;
         i++;
