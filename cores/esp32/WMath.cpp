@@ -74,7 +74,7 @@ long map(long x, long in_min, long in_max, long out_min, long out_max) {
         log_e("Invalid map input range, min == max");
         return -1; //AVR returns -1, SAM returns 0
     }
-    return (delta * dividend + (divisor / 2)) / divisor + out_min;
+    return (delta * dividend) / divisor + out_min;
 }
 
 unsigned int makeWord(unsigned int w)
