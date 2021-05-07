@@ -5,7 +5,7 @@ runtime.tools.xtensa-esp32-elf-gcc.path={runtime.platform.path}/tools/xtensa-esp
 runtime.tools.xtensa-esp32s2-elf-gcc.path={runtime.platform.path}/tools/xtensa-esp32s2-elf
 runtime.tools.riscv32-esp-elf-gcc.path={runtime.platform.path}/tools/riscv32-esp-elf
 
-tools.esptool_py.path={runtime.platform.path}/tools/esptool
+runtime.tools.esptool_py.path={runtime.platform.path}/tools/esptool
 tools.esptool_py.cmd=esptool
 tools.esptool_py.cmd.linux=esptool.py
 tools.esptool_py.cmd.windows=esptool.exe
@@ -120,9 +120,9 @@ recipe.hooks.prebuild.1.pattern=bash -c "[ ! -f "{build.source.path}"/partitions
 recipe.hooks.prebuild.2.pattern=bash -c "[ -f "{build.path}"/partitions.csv ] || [ ! -f "{build.variant.path}"/partitions.csv ] || cp "{build.variant.path}"/partitions.csv "{build.path}"/partitions.csv"
 recipe.hooks.prebuild.3.pattern=bash -c "[ -f "{build.path}"/partitions.csv ] || cp "{runtime.platform.path}"/tools/partitions/{build.partitions}.csv "{build.path}"/partitions.csv"
 
-recipe.hooks.prebuild.1.pattern.windows=cmd /c if exist "{build.source.path}\partitions.csv" COPY /y "{build.source.path}\partitions.csv" "{build.path}\partitions.csv"
-recipe.hooks.prebuild.2.pattern.windows=cmd /c if not exist "{build.path}\partitions.csv" if exist "{build.variant.path}\partitions.csv" COPY "{build.variant.path}\partitions.csv" "{build.path}\partitions.csv"
-recipe.hooks.prebuild.3.pattern.windows=cmd /c if not exist "{build.path}\partitions.csv" COPY "{runtime.platform.path}\tools\partitions\{build.partitions}.csv" "{build.path}\partitions.csv"
+recipe.hooks.prebuild.1.pattern.windows=powershell -Command "& {if (Test-Path '{build.source.path}/partitions.csv') {Copy-Item '{build.source.path}/partitions.csv' -Destination '{build.path}/partitions.csv'}}"
+recipe.hooks.prebuild.2.pattern.windows=powershell -Command "& {if (-Not (Test-Path '{build.path}/partitions.csv')) {Copy-Item '{runtime.platform.path}/tools/partitions/{build.partitions}.csv' -Destination '{build.path}/partitions.csv'}}"
+#recipe.hooks.prebuild.3.pattern.windows=cmd /c if not exist "{build.path}\partitions.csv" COPY "{runtime.platform.path}\tools\partitions\{build.partitions}.csv" "{build.path}\partitions.csv"
 
 # Check if custom bootloader exist: source > variant > build.boot
 recipe.hooks.prebuild.4.pattern=bash -c "[ -f "{build.source.path}"/bootloader.bin ] && cp -f "{build.source.path}"/bootloader.bin "{build.path}"/{build.project_name}.bootloader.bin || ( [ -f "{build.variant.path}"/bootloader.bin ] && cp "{build.variant.path}"/bootloader.bin "{build.path}"/{build.project_name}.bootloader.bin || cp -f "{runtime.platform.path}"/tools/sdk/{build.mcu}/bin/bootloader_{build.boot}_{build.flash_freq}.bin "{build.path}"/{build.project_name}.bootloader.bin )"
@@ -155,7 +155,7 @@ recipe.objcopy.partitions.bin.pattern={tools.gen_esp32part.cmd} -q "{build.path}
 
 ## Create bin
 recipe.objcopy.bin.pattern_args=--chip {build.mcu} elf2image --flash_mode "{build.flash_mode}" --flash_freq "{build.flash_freq}" --flash_size "{build.flash_size}" -o "{build.path}/{build.project_name}.bin" "{build.path}/{build.project_name}.elf"
-recipe.objcopy.bin.pattern="{tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.objcopy.bin.pattern_args}
+recipe.objcopy.bin.pattern="{runtime.tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.objcopy.bin.pattern_args}
 recipe.objcopy.bin.pattern.linux=python "{tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.objcopy.bin.pattern_args}
 
 ## Save bin
