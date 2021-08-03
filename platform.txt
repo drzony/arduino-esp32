@@ -3,7 +3,7 @@ version=0.0.1
 
 runtime.tools.xtensa-esp32-elf-gcc.path={runtime.platform.path}/tools/xtensa-esp32-elf
 
-tools.esptool_py.path={runtime.platform.path}/tools/esptool
+runtime.tools.esptool_py.path={runtime.platform.path}/tools/esptool
 tools.esptool_py.cmd=esptool
 tools.esptool_py.cmd.linux=esptool.py
 tools.esptool_py.cmd.windows=esptool.exe
@@ -69,8 +69,8 @@ compiler.libraries.ldflags=
 # Sketch Dir: {build.source.path}
 recipe.hooks.prebuild.1.pattern=bash -c "[ ! -f "{build.source.path}"/partitions.csv ] || cp -f "{build.source.path}"/partitions.csv "{build.path}"/partitions.csv"
 recipe.hooks.prebuild.2.pattern=bash -c "[ -f "{build.path}"/partitions.csv ] || cp "{runtime.platform.path}"/tools/partitions/{build.partitions}.csv "{build.path}"/partitions.csv"
-recipe.hooks.prebuild.1.pattern.windows=cmd /c if exist "{build.source.path}\partitions.csv" copy /y "{build.source.path}\partitions.csv" "{build.path}\partitions.csv"
-recipe.hooks.prebuild.2.pattern.windows=cmd /c if not exist "{build.path}\partitions.csv" copy "{runtime.platform.path}\tools\partitions\{build.partitions}.csv" "{build.path}\partitions.csv"
+recipe.hooks.prebuild.1.pattern.windows=powershell -Command "& { if ( Test-Path '{build.source.path}/partitions.csv' ) { Copy-Item '{build.source.path}/partitions.csv' -Destination '{build.path}/partitions.csv' } }"
+recipe.hooks.prebuild.2.pattern.windows=powershell -Command "& { if ( -Not ( Test-Path '{build.path}/partitions.csv' ) ) { Copy-Item '{runtime.platform.path}/tools/partitions/{build.partitions}.csv' -Destination '{build.path}/partitions.csv' } }"
 
 ## Compile c files
 recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.cpreprocessor.flags} {compiler.c.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" -DARDUINO_VARIANT="{build.variant}" {compiler.c.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
@@ -91,7 +91,7 @@ recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.f
 recipe.objcopy.partitions.bin.pattern={tools.gen_esp32part.cmd} -q "{build.path}/partitions.csv" "{build.path}/{build.project_name}.partitions.bin"
 
 ## Create bin
-recipe.objcopy.bin.pattern="{tools.esptool_py.path}/{tools.esptool_py.cmd}" --chip esp32 elf2image --flash_mode "{build.flash_mode}" --flash_freq "{build.flash_freq}" --flash_size "{build.flash_size}" -o "{build.path}/{build.project_name}.bin" "{build.path}/{build.project_name}.elf"
+recipe.objcopy.bin.pattern="{runtime.tools.esptool_py.path}/{tools.esptool_py.cmd}" --chip esp32 elf2image --flash_mode "{build.flash_mode}" --flash_freq "{build.flash_freq}" --flash_size "{build.flash_size}" -o "{build.path}/{build.project_name}.bin" "{build.path}/{build.project_name}.elf"
 recipe.objcopy.bin.pattern.linux=python "{tools.esptool_py.path}/{tools.esptool_py.cmd}" --chip esp32 elf2image --flash_mode "{build.flash_mode}" --flash_freq "{build.flash_freq}" --flash_size "{build.flash_size}" -o "{build.path}/{build.project_name}.bin" "{build.path}/{build.project_name}.elf"
 
 ## Save bin
